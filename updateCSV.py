@@ -6,10 +6,10 @@ import os.path
 jsonPath = "./Data.json"
 data = dict([])
 if(os.path.isfile(jsonPath)):
-	with f as open(jsonPath, "r"):
+	with open(jsonPath, "r") as f:
 		data = json.loads(f.read())
 
 data["key1"] = "val1"
 
-with f as open(jsonPath,"w"):
+with open(jsonPath,"w") as f:
 	f.write(json.dumps(data,indent=4))
