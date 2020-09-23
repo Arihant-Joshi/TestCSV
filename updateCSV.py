@@ -1,46 +1,19 @@
 #!/usr/local/opt/python/libexec/bin/python
-
-import json
-import os.path
 import sys
 
-args = sys.argv()
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
-jsonPath = "./Data.json"
-data = dict([])
-if(os.path.isfile(jsonPath)):
-	with open(jsonPath, "r") as f:
-		data = json.loads(f.read())
+scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+client = gspread.authorize(creds)
 
-if(args[1] == "workspace"):
-	resource_group = args[2]
-	region = args[3]
-	environment_name = args[4]
-	db_private_subnet = args[5]
-	db_public_subnet = args[6]
+new_row = sys.argv[2:]
 
-	if(resource_group not in data):
-		data[resource_group] = dict([])
-
-	data[resource_group]["region"] = region
-	data[resource_group]["WS Name"] = environment_name
-	data[resource_group]["db_private_subnet"] = environment_name
-	data[resource_group]["db_public_subnet"] = environment_name
+sheet = None
+if(sys.argv[1] == "workspace"):
+	sheet = client.open("test2").get_worksheet(0)
 else:
-	resource_group = args[2]
-	region = args[3]
-	environment_name = args[4]
-	vm_machine_type = args[5]
-	os_version = args[6]
+	sheet = client.open("test2").get_worksheet(1)
 
-	if(resource_group not in data):
-		data[resource_group] = dict([])
-
-	data[resource_group]["region"] = region
-	data[resource_group]["VM Name"] = environment_name
-	data[resource_group]["VM Type"] = vm_machine_type
-	data[resource_group]["OS Version"] = os_version
-
-
-with open(jsonPath,"w") as f:
-	f.write(json.dumps(data,indent=4))
+sheet.append_row(new_row)
